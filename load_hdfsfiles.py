@@ -1,9 +1,28 @@
+################################################
+#		Author:Jayakrishnan 	       #
+#		National Brain Research Center #
+#		Date:14-Mar-2019	       #
+################################################
+
+
 import os
 import sys
-
+from multiprocessing import Process
 #Read Arguments
 src = sys.argv[1]
 
+
+##Function to Run Methods Parallel
+def runInParallel(*fns):
+  proc = []
+  for fn in fns:
+    p = Process(target=fn)
+    p.start()
+    proc.append(p)
+  for p in proc:
+    p.join()
+
+##Function to get List of Files
 def getListOfFiles(dirName):
     # create a list of file and sub directories 
     # names in the given directory 
@@ -20,16 +39,32 @@ def getListOfFiles(dirName):
             allFiles.append(fullPath)        
     return allFiles
 
+##Function to make Directory in HDFS
+def hdfsdir(ndir):
+	cmnd = "hdfs dfs -mkdir "+ndir
+	os.system(cmnd)
+	print("Allocating Directories\n"+ndir)
+
+
+##Function to Allocate Folders and Location over HDFS
 def makedir(dirName):
 	#Generate Subdirectories
 	dirl = [dI for dI in os.listdir(dirName) if os.path.isdir(os.path.join(dirName,dI))]
+	size=len(dirl)
+	j=0
+	while j<size-3:
+		runInParallel(hdfsdir(dirl[j]),hdfsdir(dirl[j+1]),hdfsdir(dirl[j+2]))
+		k=(j/size)*100
+		g = float("{0:.2f}".format(k))
+		print("")
+		print(repr(g)+"% Completed")
+		j=j+12
+	runInParallel(hdfsdir(dirl[size]),hdfsdir(dirl[size-1]),hdfsdir(dirl[size-2]))
 	for subdr in dirl:
 		ndir=os.path.join(dirName, subdr)
-		cmnd = "hdfs dfs -mkdir "+ndir
-		os.system(cmnd)
-		print("Allocating Directories\n"+ndir)
 		makedir(ndir)
 
+##FUcntion to Push the Files to HDFS
 def loadFiles(srcName):
 	#For Loading a file
 	if os.path.isfile(srcName):
@@ -48,19 +83,32 @@ def loadFiles(srcName):
 			#print(cmnd)
 			#Riding the Command with Files
 			os.system(cmnd)
+
+
 #Creating Base Folder
 cmnd = "hdfs dfs -mkdir "+src
 os.system(cmnd)
 files=getListOfFiles(src)
 size=len(files)
-makedir(src)
-i=0
-#Uploading Files
-for x in files:
-	k=(i/size)*100
+#makedir(src)
+j=0
+#Uploading Files Parallely
+while j<size-12:
+	runInParallel(loadFiles(files[j]),loadFiles(files[j+1]),loadFiles(files[j+2]),loadFiles(files[j+3]),loadFiles(files[j+4]),loadFiles(files[j+5]),loadFiles(files[j+6]),loadFiles(files[j+7]),loadFiles(files[j+8]),loadFiles(files[j+9]),loadFiles(files[j+10]),loadFiles(files[j+11]))
+	k=(j/size)*100
 	g = float("{0:.2f}".format(k))
-	print("Uploading"+x)
 	print("")
 	print(repr(g)+"% Completed")
-	loadFiles(x)
-	i=i+1
+	j=j+12
+runInParallel(loadFiles(files[size]),loadFiles(files[size-1]),loadFiles(files[size-2]),loadFiles(files[size-3]),loadFiles(files[size-4]),loadFiles(files[size-5]),loadFiles(files[size-6]),loadFiles(files[size-7]),loadFiles(files[size-8]),loadFiles(files[size-9]),loadFiles(files[size-10]),loadFiles(files[size-11]))
+
+#Function to Upload Sequentially
+#Recomended for Low End Processors
+#for x in files:
+#	k=(i/size)*100
+#	g = float("{0:.2f}".format(k))
+#	print("Uploading"+x)
+#	print("")
+#	print(repr(g)+"% Completed")
+#	loadFiles(x)
+#	i=i+1
