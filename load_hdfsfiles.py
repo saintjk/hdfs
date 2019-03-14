@@ -5,6 +5,7 @@
 ################################################
 
 
+
 import os
 import sys
 from multiprocessing import Process
@@ -58,7 +59,7 @@ def makedir(dirName):
 		g = float("{0:.2f}".format(k))
 		print("")
 		print(repr(g)+"% Completed")
-		j=j+12
+		j=j+3
 	runInParallel(hdfsdir(dirl[size]),hdfsdir(dirl[size-1]),hdfsdir(dirl[size-2]))
 	for subdr in dirl:
 		ndir=os.path.join(dirName, subdr)
@@ -90,7 +91,7 @@ cmnd = "hdfs dfs -mkdir "+src
 os.system(cmnd)
 files=getListOfFiles(src)
 size=len(files)
-#makedir(src)
+makedir(src)
 j=0
 #Uploading Files Parallely
 while j<size-12:
