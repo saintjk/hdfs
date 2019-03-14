@@ -33,7 +33,7 @@ def makedir(dirName):
 def loadFiles(srcName):
 	#For Loading a file
 	if os.path.isfile(srcName):
-		cmnd="hdfs dfs -put "+srcName
+		cmnd="hdfs dfs -put "+srcName+" "+srcName
 		#print(cmnd)
 		#Riding the Command with Files
 		os.system(cmnd)
@@ -44,7 +44,7 @@ def loadFiles(srcName):
 			#Appending Folders
 			ndir=os.path.join(dirName, subdr)
 			#String Construction
-			cmnd="hdfs dfs -put "+ndir+"/"+srcName
+			cmnd="hdfs dfs -put "+ndir+"/"+srcName+" "+ndir+"/"+srcName
 			#print(cmnd)
 			#Riding the Command with Files
 			os.system(cmnd)
