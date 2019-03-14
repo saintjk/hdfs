@@ -6,6 +6,8 @@
 
 
 
+
+
 import os
 import sys
 from multiprocessing import Process
@@ -47,22 +49,14 @@ def hdfsdir(ndir):
 	print("Allocating Directories\n"+ndir)
 
 
+
 ##Function to Allocate Folders and Location over HDFS
 def makedir(dirName):
 	#Generate Subdirectories
 	dirl = [dI for dI in os.listdir(dirName) if os.path.isdir(os.path.join(dirName,dI))]
-	size=len(dirl)
-	j=0
-	while j<size-3:
-		runInParallel(hdfsdir(dirl[j]),hdfsdir(dirl[j+1]),hdfsdir(dirl[j+2]))
-		k=(j/size)*100
-		g = float("{0:.2f}".format(k))
-		print("")
-		print(repr(g)+"% Completed")
-		j=j+3
-	runInParallel(hdfsdir(dirl[size]),hdfsdir(dirl[size-1]),hdfsdir(dirl[size-2]))
 	for subdr in dirl:
 		ndir=os.path.join(dirName, subdr)
+		hdfsdir(ndir)
 		makedir(ndir)
 
 ##FUcntion to Push the Files to HDFS
@@ -88,6 +82,8 @@ def loadFiles(srcName):
 
 #Creating Base Folder
 cmnd = "hdfs dfs -mkdir "+src
+dirl = [dI for dI in os.listdir(src) if os.path.isdir(os.path.join(src,dI))]
+runInParallel(makedir(dirl[0]),makedir(dirl[1]),makedir(dirl[2]))
 os.system(cmnd)
 files=getListOfFiles(src)
 size=len(files)
