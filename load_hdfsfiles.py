@@ -58,8 +58,9 @@ i=0
 #Uploading Files
 for x in files:
 	k=(i/size)*100
+	g = float("{0:.2f}".format(k))
 	print("Uploading"+x)
 	print("")
-	print(repr(int(k))+"% Completed")
+	print(repr(g)+"% Completed")
 	loadFiles(x)
 	i=i+1
