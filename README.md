@@ -11,3 +11,9 @@ and provide you Failed lists.
 
 ### Expected Updates
 Plan for a Filemanager GUI based on Django
+
+
+Usage:
+```
+python3 load_hdfsfiles.py <foldername>
+```
